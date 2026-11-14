@@ -1,0 +1,105 @@
+{
+  "name": "Cap v4 Self-Hosted CAPTCHA (Proof-of-Work)",
+  "description": "Private proof-of-work CAPTCHA with dashboard, site keys, analytics, Valkey.",
+  "category": "Authentication",
+  "tags": [
+    "cap",
+    "captcha",
+    "proof-of-work",
+    "recaptcha-alternative",
+    "hcaptcha-alternative",
+    "turnstile-alternative",
+    "bot-protection",
+    "anti-spam",
+    "privacy",
+    "valkey"
+  ],
+  "image": "https://cdn.jsdelivr.net/gh/tiagozip/cap@40f65d72801c883496a5fbf73f1c18c4632d46d7/docs/public/logo.png",
+  "upstream": {
+    "cap": "tiagozip/cap capd@4.0.13 (released 2026-11-13), image tiago2/cap:4.0.13@sha256:9eb46e4282e78dacb15b535204ececa1506650499e498a50831e0377b7ac98d1",
+    "valkey": "valkey/valkey:9.1.3-alpine@sha256:bf09d58e96d6b4524a15396b65b242bbe18beebbcc15a04d8ee75ddac62fae0b",
+    "checked": "2026-11-14"
+  },
+  "services": {
+    "Cap": {
+      "icon": "https://cdn.jsdelivr.net/gh/tiagozip/cap@40f65d72801c883496a5fbf73f1c18c4632d46d7/docs/public/logo.png",
+      "source": {
+        "repo": "baranberkay96/cap-captcha-railway",
+        "rootDirectory": "/services/cap"
+      },
+      "startCommand": null,
+      "preDeployCommand": null,
+      "healthcheckPath": "/health",
+      "healthcheckTimeout": 300,
+      "restartPolicyType": "ALWAYS",
+      "numReplicas": 1,
+      "cronSchedule": null,
+      "publicDomain": true,
+      "targetPort": 3000,
+      "tcpProxy": null,
+      "volume": {
+        "mountPath": "/usr/src/app/data"
+      },
+      "variables": {
+        "ADMIN_KEY": {
+          "defaultValue": "${{secret(48, \"abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789\")}}",
+          "description": "Dashboard password, generated at deploy. 12+ characters (32+ recommended). Shorter or empty locks the dashboard.",
+          "required": true
+        },
+        "PORT": {
+          "defaultValue": "3000",
+          "description": "Port Cap listens on (healthcheck and public domain target).",
+          "required": true
+        },
+        "VALKEY_URL": {
+          "defaultValue": "redis://default:${{Valkey.VALKEY_PASSWORD}}@${{Valkey.RAILWAY_PRIVATE_DOMAIN}}:6379",
+          "description": "Valkey connection over the private network: site keys, settings, sessions, rate limits.",
+          "required": true
+        },
+        "CAP_CLIENT_IP_HEADER": {
+          "defaultValue": "x-forwarded-for",
+          "description": "Header with the visitor IP, saved once to Instance settings > Visitor location on first start. Empty = skip.",
+          "required": false
+        },
+        "CAP_URL": {
+          "defaultValue": "https://${{RAILWAY_PUBLIC_DOMAIN}}",
+          "description": "Public base URL. Widget endpoint: {CAP_URL}/{site-key}/ ; backend check: {CAP_URL}/{site-key}/siteverify.",
+          "required": false
+        },
+        "CAP_PRIVATE_URL": {
+          "defaultValue": "http://${{RAILWAY_PRIVATE_DOMAIN}}:${{PORT}}",
+          "description": "Private base URL for siteverify calls from services in this project (no egress).",
+          "required": false
+        }
+      }
+    },
+    "Valkey": {
+      "icon": "https://cdn.jsdelivr.net/gh/homarr-labs/dashboard-icons/svg/valkey.svg",
+      "source": {
+        "repo": "baranberkay96/cap-captcha-railway",
+        "rootDirectory": "/services/valkey"
+      },
+      "startCommand": null,
+      "preDeployCommand": null,
+      "healthcheckPath": null,
+      "healthcheckTimeout": null,
+      "restartPolicyType": "ALWAYS",
+      "numReplicas": 1,
+      "cronSchedule": null,
+      "publicDomain": false,
+      "targetPort": null,
+      "tcpProxy": null,
+      "volume": {
+        "mountPath": "/data"
+      },
+      "variables": {
+        "VALKEY_PASSWORD": {
+          "defaultValue": "${{secret(32, \"abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789\")}}",
+          "description": "Valkey password, generated at deploy (letters and digits keep VALKEY_URL valid). Cap references it.",
+          "required": true
+        }
+      }
+    }
+  },
+  "buckets": []
+}
