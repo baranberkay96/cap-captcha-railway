@@ -1,5 +1,7 @@
 # Deploy and Host Cap with Railway
 
+[![Deploy on Railway](https://railway.com/button.svg)](https://railway.com/deploy/cap-v4-self-hosted-captcha-proof-of-work?referralCode=20H68q)
+
 Cap is an open-source, privacy-friendly CAPTCHA you host yourself. Instead of picking traffic lights, the visitor's browser solves a small proof-of-work puzzle in the background, and your backend checks the token with Cap. This community template runs Cap 4.0.13 (capd) with its dashboard, analytics and a password-protected Valkey.
 
 ## About Hosting Cap
